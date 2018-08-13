@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Trainer</title>
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+	<script src="handler.js"></script>
+	<script src="regForm.js"></script>
+	<script>
+		function getFields(){
+		  return [
+		  	{
+		  		name: 'ID',
+		  		field: 'id'
+		  	},
+				{
+		  		name: 'First Name',
+		  		field: 'firstname'
+		  	},
+		  	{
+		  		name: 'Last Name',
+		  		field: 'lastname'
+		  	},
+		  	{
+		  		name: 'Age',
+		  		field: 'age'
+		  	}
+		  ]
+		}
+	</script>
+</head>
+<body>
+	<h2>Trainers List</h2>
+    <form id="register-form" name="Form">
+        <input type="hidden" name="id" value="0" />
+
+        <div class="reg-form" id="reg-form"></div>
+        <script>
+            // printForms();
+        </script>
+        <div class="panel-body">
+            <button type="submit" class="btn btn-sm btn-primary">Save</button>
+            <a id="reset" class="btn btn-sm btn-primary">Reset</a>
+        </div>
+    </form>
+    <table class="table table-condensed table-striped table-bordered">
+	    <thead id="table-head">
+	    </thead>
+	    <tbody id="Table">
+	    </tbody>
+    </table>
+    <script>
+    	createChild('table-head', getTableHead( getFields() ), 'tr')
+			createChild('reg-form', getForms( getFields() ))
+
+			findAll('trainers', trainers => trainers.map( x => {
+				console.log(x)
+				addNewTableString(
+					getFields().map( x => x.field), x
+				)
+			}))
+
+			function reset() {
+        var form = document.forms['Form']
+        form.reset()
+        form.elements['id'].value = 0
+      }
+      document.getElementById('reset').addEventListener('click', function(event){
+        event.preventDefault()
+        reset()
+      });
+
+			document.getElementById('register-form').addEventListener('submit', function(event){
+        event.preventDefault() 
+        const model = {}
+        var form = document.forms['Form']
+        getFields().map( x => 
+        	model[x.field] = form.elements[x.field].value
+        )
+        model['id'] = form.elements['id'][1].value
+
+        model['id'] == 0 
+        	? insert('trainers', model).then(()=> {
+        			reset()
+        			addNewTableString(
+								getFields().map( x => x.field), model
+							)
+        		})
+        	: edit('trainers', model.id, model)
+      })
+
+      document.getElementById('Table').onclick = function(event){
+        var target = event.target
+        var className = target.className
+        switch(className){
+          case 'editLink': 
+          	findOne('trainers', target.attributes[1].value, res => {
+          		let form = document.forms['Form']
+          		form.elements['id'][1].value = res['id']
+          		getFields().map( x => form.elements[x.field].value = res[x.field] )
+          	})	
+          	break
+          case 'removeLink': 	
+          	drop('trainers', target.attributes[1].value, res => {
+          		for (var q = 1; isUserId = (tr[q].attributes[0].value != user._id);)
+     						q++
+       				if (!isUserId) 
+       					document.getElementById('Table').removeChild(tr[q])
+          	})
+          	break
+        }
+      }
+
+			// findAll('trainers', async trainers => console.log(await trainers))
+    </script>
+</body>
+</html>
